@@ -27,16 +27,13 @@ async def download_mp4(response: Response, request: MP4DownloadRequest):
     try: # mp4파일 병합
         fileName = await merge_url_videos(mp4_urls)
     except Exception as e:
-        # 에러 핸들링: 예외가 발생하면 500 서버 에러 반환
+        # 병합중 예외가 발생하면 500 서버 에러 반환
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     
     file_path = './'
     full_file_path = f"{file_path}{fileName}"
-    # 파일이 존재하지 않으면 에러
-    if not os.path.exists(full_file_path):
-        return Response(content="File not found.", status_code=404)
 
-    # 존재한다면 파일 열기 및 내용 읽기
+    # 생성한 파일경로 접근하여 데이터 메모리로 할당, 임시로 생성했던 파일은 삭제
     with open(full_file_path, 'rb') as file:  # 'rb'는 바이너리 읽기 모드
         file_content = file.read()
         os.remove(full_file_path)
